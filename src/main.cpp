@@ -6,9 +6,6 @@ int main() {
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
 
-  // 
-  std::cout << "$ ";
-
   //user input
   std::string user_input = "";
   while(true) {
