@@ -11,6 +11,6 @@ int main() {
 
   //user input
   std::string user_input = "";
-  std::cin << user_input;
+  std::cin >> user_input;
   std::cout << "{" << user_input << "}: " << user_input << " not found \n";
 }
