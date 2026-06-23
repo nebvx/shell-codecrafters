@@ -12,5 +12,5 @@ int main() {
   //user input
   std::string user_input = "";
   std::cin >> user_input;
-  std::cout << user_input << ": " << " command not found \n";
+  std::cout << user_input << ": command not found \n";
 }
