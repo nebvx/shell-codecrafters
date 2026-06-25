@@ -11,6 +11,7 @@ int main() {
   while(true) {
     std::cout << "$ ";
     std::cin >> user_input;
+    if (user_input == "exit") break;
     std::cout << user_input << ": command not found \n";
     user_input = "";
   }
