@@ -3,7 +3,7 @@
 #include <vector>
 
 std::vector<std::string> getVectorOfInput(std::string user_input) {
-  std::cout << "getvector called \n";
+  //std::cout << "getvector called \n";
 
   std::vector<std::string> input; //the whole input fromm the user sperated by spaces
   std::string command = ""; //can be echo or the words after
@@ -22,7 +22,7 @@ std::vector<std::string> getVectorOfInput(std::string user_input) {
 }
 
 void handleEcho(std::vector<std::string> input) {
-  std::cout << "handleecho called \n";
+ // std::cout << "handleecho called \n";
   
   for (auto word : input) {
     if (word != "echo"){
@@ -34,7 +34,7 @@ void handleEcho(std::vector<std::string> input) {
 
 
 bool handleInput(std::string user_input) {
-  std::cout << "handleinputcalled \n";
+  //std::cout << "handleinputcalled \n";
   std::vector<std::string> input = getVectorOfInput(user_input);
   if (input.at(0) == "echo") {
     handleEcho(input);
