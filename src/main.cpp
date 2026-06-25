@@ -59,7 +59,7 @@ int main() {
     //user input
     std::cin >> user_input;
     if (!handleInput(user_input)) {
-      std::cout << "exit called \n"; //debug
+      //std::cout << "exit called \n"; //debug
       break;
     }
 
