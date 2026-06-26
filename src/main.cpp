@@ -29,12 +29,26 @@ void handleEcho(std::vector<std::string> input) {
 
 }
 
+void handleType(std::vector<std::string> input) {
+  bool builtin {false};
+  std::string command = input.at(1);
+  if (command == "echo" ||command == "type" || command == "exit") {
+    builtin = true;
+  }
+  
+  std::string message = "";
+  message = builtin ? " is a shell builtin" : ": not found";
+  std::cout << input.at(1) << message << "\n";
+}
+
 bool handleInput(std::string user_input) {
   std::vector<std::string> input = getVectorOfInput(user_input);
   if (input.at(0) == "echo") {
     handleEcho(input);
   } else if (input.at(0) == "exit") {
     return false;
+  } else if (input.at(0) == "type") {
+    handleType(input);
   } else {
     std::cout << user_input << ": command not found \n";
   }
