@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <filesystem> // file system operations
+namespace fs = std::filesystem;
 
 std::vector<std::string> getVectorOfInput(std::string user_input) {
   std::vector<std::string> input; //the whole input fromm the user sperated by spaces
@@ -29,16 +31,38 @@ void handleEcho(std::vector<std::string> input) {
 
 }
 
+bool isExecutable(const fs::path& p) {
+  auto perm = fs::status(p).permissions();
+  return (perm & fs::perms::owner_exec) != fs::perms::none;
+}
+
+bool searchPath(std::string command) {
+  const char* env_path = std::getenv("PATH");
+  if (env_path == nullptr) return false;
+
+  std::stringstream path_stream(env_path);
+  std::string dir;
+  while (std::getline(path_stream, dir, ':')) {
+    std::string path_with_command = dir + "/" + command;
+    if (std::filesystem::exists(path_with_command)) {
+      if (isExecutable(path_with_command)) {
+        std::cout << command << " is " << path_with_command << "\n";
+        return true;
+      }
+    }
+  }
+
+  return false;
+} 
+
 void handleType(std::vector<std::string> input) {
   bool builtin {false};
   std::string command = input.at(1);
   if (command == "echo" ||command == "type" || command == "exit") {
-    builtin = true;
+    std::cout << command << " is a shell builtin\n";
+  } else if (!searchPath(command)) {
+    std::cout << command << ": not found\n";
   }
-  
-  std::string message = "";
-  message = builtin ? " is a shell builtin" : ": not found";
-  std::cout << input.at(1) << message << "\n";
 }
 
 bool handleInput(std::string user_input) {
