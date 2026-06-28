@@ -99,12 +99,11 @@ void handlePwd () {
 
 //cd (change directory): is used to change the current working directory; builtin
 void handleCd (std::vector<std::string> input) {
-  const char* env_path = std::getenv("HOME");
-
+  std::string path = (input.at(1) == "~" ? std::getenv("HOME") : input.at(1));
   try {
-    std::filesystem::current_path(input.at(1)); //setting path
+    std::filesystem::current_path(path); //setting path
   } catch (std::filesystem::filesystem_error const& ex) {
-    std::cout << "cd: "<< input.at(1) << ": No such file or directory\n";
+    std::cout << "cd: "<< path << ": No such file or directory\n";
   }
 }
 
