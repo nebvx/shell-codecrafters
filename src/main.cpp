@@ -59,7 +59,7 @@ std::string searchPath(std::string command) {
 
 void handleType(std::vector<std::string> input) {
   std::string command = input.at(1);
-  if (command == "echo" || command == "type" || command == "exit") {
+  if (command == "echo" || command == "type" || command == "exit" || command == "pwd") {
     std::cout << command << " is a shell builtin\n";
   } else {
     std::string path = searchPath(command);
@@ -92,6 +92,11 @@ bool handleRunProgram(std::vector<std::string> args) {
   return false;
 }
 
+//pwd: prints the full, absolute path of the current working directory to stdout
+void handlePwd () {
+  std::cout << std::filesystem::current_path().string() << std::endl;
+}
+
 bool handleInput(std::string user_input) {
   std::vector<std::string> input = getVectorOfInput(user_input);
   if (input.at(0) == "echo") {
@@ -100,6 +105,8 @@ bool handleInput(std::string user_input) {
     return false;
   } else if (input.at(0) == "type") {
     handleType(input);
+  } else if (input.at(0) == "pwd") {
+    handlePwd();
   } else if (!handleRunProgram(input)) {
     std::cout << input.at(0) << ": command not found\n";
   }
