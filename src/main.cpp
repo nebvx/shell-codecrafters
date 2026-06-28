@@ -59,7 +59,7 @@ std::string searchPath(std::string command) {
 
 void handleType(std::vector<std::string> input) {
   std::string command = input.at(1);
-  if (command == "echo" || command == "type" || command == "exit" || command == "pwd") {
+  if (command == "echo" || command == "type" || command == "exit" || command == "pwd" || command == "cd") {
     std::cout << command << " is a shell builtin\n";
   } else {
     std::string path = searchPath(command);
@@ -92,9 +92,21 @@ bool handleRunProgram(std::vector<std::string> args) {
   return false;
 }
 
-//pwd: prints the full, absolute path of the current working directory to stdout
+//pwd: prints the full, absolute path of the current working directory to stdout, builtin
 void handlePwd () {
   std::cout << std::filesystem::current_path().string() << std::endl;
+}
+
+//cd (change directory): is used to change the current working directory; builtin
+void handleCd (std::vector<std::string> input) {
+  //auto path = std::filesystem::current_path(); //getting path
+  try {
+    std::filesystem::current_path(input.at(1)); //setting path
+  } catch (std::filesystem::filesystem_error const& ex) {
+    std::cout << "cd: "<< input.at(1) << ": No such file or directory\n";
+  }
+  //cd location doesn't exit
+
 }
 
 bool handleInput(std::string user_input) {
@@ -107,6 +119,8 @@ bool handleInput(std::string user_input) {
     handleType(input);
   } else if (input.at(0) == "pwd") {
     handlePwd();
+  } else if (input.at(0) == "cd") {
+    handleCd(input);
   } else if (!handleRunProgram(input)) {
     std::cout << input.at(0) << ": command not found\n";
   }
