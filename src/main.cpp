@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sstream>
 #include <filesystem> // file system operations
 namespace fs = std::filesystem;
 
@@ -36,9 +37,9 @@ bool isExecutable(const fs::path& p) {
   return (perm & fs::perms::owner_exec) != fs::perms::none;
 }
 
-bool searchPath(std::string command) {
+std::string searchPath(std::string command) {
   const char* env_path = std::getenv("PATH");
-  if (env_path == nullptr) return false;
+  if (env_path == nullptr) return "";
 
   std::stringstream path_stream(env_path);
   std::string dir;
@@ -46,33 +47,38 @@ bool searchPath(std::string command) {
     std::string path_with_command = dir + "/" + command;
     if (std::filesystem::exists(path_with_command)) {
       if (isExecutable(path_with_command)) {
-        std::cout << command << " is " << path_with_command << "\n";
-        return true;
+        return path_with_command;
       }
     }
   }
 
-  return false;
+  return "";
 } 
 
 void handleType(std::vector<std::string> input) {
-  bool builtin {false};
   std::string command = input.at(1);
-  if (command == "echo" ||command == "type" || command == "exit") {
+  if (command == "echo" || command == "type" || command == "exit") {
     std::cout << command << " is a shell builtin\n";
-  } else if (!searchPath(command)) {
-    std::cout << command << ": not found\n";
+  } else {
+    std::string path = searchPath(command);
+    if (!path.empty()) {
+      std::cout << command << " is " << path << "\n";
+    } else {
+      std::cout << command << ": not found\n";
+    }
   }
 }
 
-bool handleRunProgram(std::string input) {
-  std::string user_input = input;
-  const char* env_path = user_input.c_str();
-  if (isExecutable(user_input)) {
-    std::system(env_path);
-    return true;
+bool handleRunProgram(std::vector<std::string> args) {
+  std::string path = searchPath(args.at(0));
+  if (path.empty()) return false;
+
+  std::string cmd = path;
+  for (size_t i = 1; i < args.size(); ++i) {
+    cmd += " " + args.at(i);
   }
-  return false;
+  std::system(cmd.c_str());
+  return true;
 }
 
 bool handleInput(std::string user_input) {
@@ -83,7 +89,7 @@ bool handleInput(std::string user_input) {
     return false;
   } else if (input.at(0) == "type") {
     handleType(input);
-  } else if (!handleRunProgram(user_input)) {
+  } else if (!handleRunProgram(input)) {
     std::cout << input.at(0) << ": command not found\n";
   }
   return true;
