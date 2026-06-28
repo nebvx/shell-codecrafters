@@ -65,6 +65,16 @@ void handleType(std::vector<std::string> input) {
   }
 }
 
+bool handleRunProgram(std::string input) {
+  std::string user_input = input;
+  const char* env_path = user_input.c_str();
+  if (isExecutable(user_input)) {
+    std::system(env_path);
+    return true;
+  }
+  return false;
+}
+
 bool handleInput(std::string user_input) {
   std::vector<std::string> input = getVectorOfInput(user_input);
   if (input.at(0) == "echo") {
@@ -73,8 +83,8 @@ bool handleInput(std::string user_input) {
     return false;
   } else if (input.at(0) == "type") {
     handleType(input);
-  } else {
-    std::cout << user_input << ": command not found \n";
+  } else if (!handleRunProgram(user_input)) {
+    std::cout << input.at(0) << ": command not found\n";
   }
   return true;
 }
@@ -91,13 +101,14 @@ int main() {
     std::cout << "$ ";
     //user input
     std::getline(std::cin, user_input);
+    //std::cout << "user_input: " << user_input << "\n";
     if (!user_input.empty()) {
       if (!handleInput(user_input)) {
         //std::cout << "exit called \n"; //debug
         break;
       }
     }
-  
+
     user_input = "";
   }
 }
