@@ -2,7 +2,9 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <filesystem> // file system operations
+#include <filesystem>
+#include <unistd.h>
+#include <sys/wait.h>
 namespace fs = std::filesystem;
 
 std::vector<std::string> getVectorOfInput(std::string user_input) {
@@ -70,15 +72,24 @@ void handleType(std::vector<std::string> input) {
 }
 
 bool handleRunProgram(std::vector<std::string> args) {
-  std::string path = searchPath(args.at(0));
-  if (path.empty()) return false;
+  if (searchPath(args.at(0)).empty()) return false;
 
-  std::string cmd = path;
-  for (size_t i = 1; i < args.size(); ++i) {
-    cmd += " " + args.at(i);
+  std::vector<char*> c_args;
+  for (auto& arg : args) {
+    c_args.push_back(arg.data());
   }
-  std::system(cmd.c_str());
-  return true;
+  c_args.push_back(nullptr);
+
+  pid_t pid = fork();
+  if (pid == 0) {
+    execvp(c_args[0], c_args.data());
+    _exit(1);
+  } else if (pid > 0) {
+    int status;
+    waitpid(pid, &status, 0);
+    return true;
+  }
+  return false;
 }
 
 bool handleInput(std::string user_input) {
