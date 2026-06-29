@@ -45,7 +45,7 @@ std::string getEchoText(std::string userInput) {
                 continue;
             }
         }
-        if (userInput.at(i) == ' ' && userInput.at(i + 1) == ' ' && !inQuotes) {
+        if (userInput.at(i) == ' ' && userInput.at(i + 1) == ' ' && !inQuotes && !isInsideDoubleQuotes) {
             continue;
         }
 
