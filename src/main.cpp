@@ -15,6 +15,7 @@ std::vector<std::string> getVectorOfInput(std::string user_input) {
   for (size_t i {0}; i < user_input.size(); ++i) {
     if (user_input.at(i) == '\'' || user_input.at(i) == '\"') {
         inQuotes = !inQuotes;
+        continue;
     }
     if (user_input.at(i) == ' ' && !inQuotes) {
       input.push_back(command);
@@ -27,39 +28,30 @@ std::vector<std::string> getVectorOfInput(std::string user_input) {
   input.push_back(command);
   return input;
 }
-/*
-std::string getInputWithoutQuotes(std::string input){
-    std::string filteredWord;
-    for (size_t i {0}; i < input.size(); ++i) {
-        char letter = input.at(i);
-        if ()
-        filteredWord.push_back(letter);
-    }
-    return filteredWord;
-}
- */
 
-getEchoText
+std::string getEchoText(std::string userInput) {
+    std::string textToPrint; //the whole input fromm the user sperated by spaces
+    bool inQuotes = false;
+    size_t startAfterEcho = 5;
+    for (size_t i {startAfterEcho}; i < userInput.size(); ++i) {
+        if (userInput.at(i) == '\'' || userInput.at(i) == '\"') {
+            inQuotes = !inQuotes;
+            continue;
+        }
+        if (userInput.at(i) == ' ' && userInput.at(i + 1) == ' ' && !inQuotes) {
+            continue;
+        }
 
-void handleEcho(std::string user_input) {
-    std::string textToPrint = getEchoText(user_input);
-    for (size_t i {1}; i < input.size(); ++i) {
-        std::string word = getInputWithoutQuotes(input.at(i));
-        //std::cout << "word: " << word << "\n";
-        quotedText += word;
+        textToPrint += userInput[i];
     }
-    std::cout << quotedText << "\n";
+
+    return textToPrint;
 }
-/*
- * std::string quotedText = getInputWithoutQuotes(input);
-    for (auto word : input) {
-    if (word != "echo"){
-      std::cout << word << " ";
-    }
-    }
-    std::cout << "\n";
- *
- */
+
+void handleEcho(std::string userInput) {
+    std::string textToPrint = getEchoText(userInput);
+    std::cout << textToPrint << "\n";
+}
 
 bool isExecutable(const fs::path& p) {
   auto perm = fs::status(p).permissions();
