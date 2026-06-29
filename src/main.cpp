@@ -36,11 +36,12 @@ std::string getEchoText(std::string userInput) {
     size_t startAfterEcho = 5;
     for (size_t i {startAfterEcho}; i < userInput.size(); ++i) {
         if (userInput.at(i) == '\'' || userInput.at(i) == '\"') {
+            if (userInput.at(i) == '\"') {
+                isInsideDoubleQuotes = !isInsideDoubleQuotes;
+            }
             if (!isInsideDoubleQuotes) {
                 inQuotes = !inQuotes;
                 continue;
-            } else if (userInput.at(i) == '\"') {
-                isInsideDoubleQuotes = !isInsideDoubleQuotes;
             }
         }
         if (userInput.at(i) == ' ' && userInput.at(i + 1) == ' ' && !inQuotes) {
