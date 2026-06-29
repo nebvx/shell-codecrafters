@@ -38,6 +38,7 @@ std::string getEchoText(std::string userInput) {
         if (userInput.at(i) == '\'' || userInput.at(i) == '\"') {
             if (userInput.at(i) == '\"') {
                 isInsideDoubleQuotes = !isInsideDoubleQuotes;
+                continue;
             }
             if (!isInsideDoubleQuotes) {
                 inQuotes = !inQuotes;
