@@ -14,6 +14,7 @@ std::vector<std::string> getVectorOfInput(std::string userInput) {
 
     for (size_t i {0}; i < userInput.size(); ++i) {
         char letter = userInput.at(i);
+
         if (letter == '\'' || letter == '\"') {
             size_t closingQuote = userInput.find(letter, i + 1);
             if (closingQuote != std::string::npos) {
@@ -22,10 +23,13 @@ std::vector<std::string> getVectorOfInput(std::string userInput) {
                 }
                 i = closingQuote;
             }
+        } else if (letter == '\\') {
+            command += userInput.at(i + 1);
+            ++i;
         } else if (letter == ' ' && !command.empty()) {
             input.push_back(command);
             command.clear();
-        } else {
+        } else if (!(command.empty() && letter == ' ')) {
             command += letter;
         }
     }
@@ -33,41 +37,21 @@ std::vector<std::string> getVectorOfInput(std::string userInput) {
     return input;
 }
 
-std::string getEchoText(std::string userInput) {
-    std::string textToPrint; //the whole input fromm the user sperated by spaces
-    bool inQuotes = false;
-    bool isInsideDoubleQuotes = false;
-    size_t startAfterEcho = 5;
-    for (size_t i {startAfterEcho}; i < userInput.size(); ++i) {
-        if (userInput.at(i) == '\'' || userInput.at(i) == '\"') {
-            if (userInput.at(i) == '\"') {
-                isInsideDoubleQuotes = !isInsideDoubleQuotes;
-                continue;
-            }
-            if (!isInsideDoubleQuotes) {
-                inQuotes = !inQuotes;
-                continue;
-            }
-        }
-        if (userInput.at(i) == ' ' && userInput.at(i + 1) == ' ' && !inQuotes && !isInsideDoubleQuotes) {
-            continue;
-        }
-
-        textToPrint += userInput.at(i);
-    }
-
-    return textToPrint;
-}
-
 void handleEcho( std::vector<std::string> input) {
-    std::string echoToPrint = std::accumulate(
-            input.begin() + 1, input.end(), std::string(""),
-            [](const std::string &a, const std::string &b) {
-                return a + b;
-            });
-
+    std::string echoToPrint;
+    for (size_t i {1}; i < input.size(); ++i) {
+        echoToPrint += input.at(i);
+        if (i < input.size()) echoToPrint += " ";
+    }
     std::cout << echoToPrint << "\n";
 }
+
+/*std::string echoToPrint = std::accumulate(
+           input.begin() + 1, input.end(), std::string(""),
+           [](const std::string &a, const std::string &b) {
+               return a + " " + b;
+           });
+*/
 
 /* std::string echoToPrint = std::accumulate(
             userInput.begin() + 1, userInput.end(), std::string(""),
