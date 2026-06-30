@@ -3,6 +3,7 @@
 #include <vector>
 #include <sstream>
 #include <filesystem>
+#include <numeric>
 #include <unistd.h>
 #include <sys/wait.h>
 namespace fs = std::filesystem;
@@ -58,9 +59,14 @@ std::string getEchoText(std::string userInput) {
     return textToPrint;
 }
 
-void handleEcho(std::string userInput) {
-    std::string textToPrint = getEchoText(userInput);
-    std::cout << textToPrint << "\n";
+void handleEcho( std::vector<std::string> input) {
+    std::string echoToPrint = std::accumulate(
+            input.begin() + 1, input.end(), std::string(""),
+            [](const std::string &a, const std::string &b) {
+                return a + b;
+            });
+
+    std::cout << echoToPrint << "\n";
 }
 
 /* std::string echoToPrint = std::accumulate(
@@ -89,7 +95,6 @@ std::string searchPath(std::string command) {
       }
     }
   }
-
   return "";
 } 
 
@@ -146,7 +151,7 @@ void handleCd (std::vector<std::string> input) {
 bool handleInput(std::string user_input) {
   std::vector<std::string> input = getVectorOfInput(user_input);
   if (input.at(0) == "echo") {
-    handleEcho(user_input);
+    handleEcho(input);
   } else if (input.at(0) == "exit") {
     return false;
   } else if (input.at(0) == "type") {
@@ -168,7 +173,7 @@ int main() {
   std::cerr << std::unitbuf;
 
   //user input
-  std::string user_input = "";
+  std::string user_input;
   while(true) {
     std::cout << "$ ";
     //user input
