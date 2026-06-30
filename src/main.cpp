@@ -7,26 +7,29 @@
 #include <sys/wait.h>
 namespace fs = std::filesystem;
 
-std::vector<std::string> getVectorOfInput(std::string user_input) {
-  std::vector<std::string> input; //the whole input fromm the user sperated by spaces
-  std::string command = ""; //can be echo or the words after
+std::vector<std::string> getVectorOfInput(std::string userInput) {
+    std::vector<std::string> input;
+    std::string command;
 
-  bool inQuotes = false;
-  for (size_t i {0}; i < user_input.size(); ++i) {
-    if (user_input.at(i) == '\'' || user_input.at(i) == '\"') {
-        inQuotes = !inQuotes;
-        continue;
+    for (size_t i {0}; i < userInput.size(); ++i) {
+        char letter = userInput.at(i);
+        if (letter == '\'' || letter == '\"') {
+            size_t closingQuote = userInput.find(letter, i + 1);
+            if (closingQuote != std::string::npos) {
+                while (++i < closingQuote) {
+                    command += userInput.at(i);
+                }
+                i = closingQuote;
+            }
+        } else if (letter == ' ' && !command.empty()) {
+            input.push_back(command);
+            command.clear();
+        } else {
+            command += letter;
+        }
     }
-    if (user_input.at(i) == ' ' && !inQuotes) {
-      input.push_back(command);
-      command = "";
-    } else {
-      command += user_input[i];
-    }
-  }
-  
-  input.push_back(command);
-  return input;
+    if (!command.empty()) input.push_back(command);
+    return input;
 }
 
 std::string getEchoText(std::string userInput) {
@@ -49,7 +52,7 @@ std::string getEchoText(std::string userInput) {
             continue;
         }
 
-        textToPrint += userInput[i];
+        textToPrint += userInput.at(i);
     }
 
     return textToPrint;
@@ -59,6 +62,13 @@ void handleEcho(std::string userInput) {
     std::string textToPrint = getEchoText(userInput);
     std::cout << textToPrint << "\n";
 }
+
+/* std::string echoToPrint = std::accumulate(
+            userInput.begin() + 1, userInput.end(), std::string(""),
+            [](const std::string &a, const std::string &b) {
+                return a + b;
+            });
+*/
 
 bool isExecutable(const fs::path& p) {
   auto perm = fs::status(p).permissions();
