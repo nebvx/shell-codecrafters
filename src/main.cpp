@@ -3,36 +3,62 @@
 #include <vector>
 #include <sstream>
 #include <filesystem>
+#include <numeric>
 #include <unistd.h>
 #include <sys/wait.h>
 namespace fs = std::filesystem;
 
-std::vector<std::string> getVectorOfInput(std::string user_input) {
-  std::vector<std::string> input; //the whole input fromm the user sperated by spaces
-  std::string command = ""; //can be echo or the words after
+std::vector<std::string> getVectorOfInput(std::string userInput) {
+    std::vector<std::string> input;
+    std::string command;
 
-  for (size_t i {0}; i < user_input.size(); ++i) {
-    if (user_input.at(i) == ' ') {
-      input.push_back(command);
-      command = "";
-    } else {
-      command += user_input[i];
+    for (size_t i {0}; i < userInput.size(); ++i) {
+        char letter = userInput.at(i);
+
+        if (letter == '\'' || letter == '\"') {
+            size_t closingQuote = userInput.find(letter, i + 1);
+            if (closingQuote != std::string::npos) {
+                while (++i < closingQuote) {
+                    command += userInput.at(i);
+                }
+                i = closingQuote;
+            }
+        } else if (letter == '\\') {
+            command += userInput.at(i + 1);
+            ++i;
+        } else if (letter == ' ' && !command.empty()) {
+            input.push_back(command);
+            command.clear();
+        } else if (!(command.empty() && letter == ' ')) {
+            command += letter;
+        }
     }
-  }
-  
-  input.push_back(command);
-  return input;
+    if (!command.empty()) input.push_back(command);
+    return input;
 }
 
-void handleEcho(std::vector<std::string> input) {
-  for (auto word : input) {
-    if (word != "echo"){
-      std::cout << word << " ";
+void handleEcho( std::vector<std::string> input) {
+    std::string echoToPrint;
+    for (size_t i {1}; i < input.size(); ++i) {
+        echoToPrint += input.at(i);
+        if (i < input.size()) echoToPrint += " ";
     }
-  }
-  std::cout << "\n";
-
+    std::cout << echoToPrint << "\n";
 }
+
+/*std::string echoToPrint = std::accumulate(
+           input.begin() + 1, input.end(), std::string(""),
+           [](const std::string &a, const std::string &b) {
+               return a + " " + b;
+           });
+*/
+
+/* std::string echoToPrint = std::accumulate(
+            userInput.begin() + 1, userInput.end(), std::string(""),
+            [](const std::string &a, const std::string &b) {
+                return a + b;
+            });
+*/
 
 bool isExecutable(const fs::path& p) {
   auto perm = fs::status(p).permissions();
@@ -47,13 +73,12 @@ std::string searchPath(std::string command) {
   std::string dir;
   while (std::getline(path_stream, dir, ':')) {
     std::string path_with_command = dir + "/" + command;
-    if (std::filesystem::exists(path_with_command)) {
+    if (fs::exists(path_with_command)) {
       if (isExecutable(path_with_command)) {
         return path_with_command;
       }
     }
   }
-
   return "";
 } 
 
@@ -94,15 +119,15 @@ bool handleRunProgram(std::vector<std::string> args) {
 
 //pwd: prints the full, absolute path of the current working directory to stdout, builtin
 void handlePwd () {
-  std::cout << std::filesystem::current_path().string() << std::endl;
+  std::cout << fs::current_path().string() << std::endl;
 }
 
 //cd (change directory): is used to change the current working directory; builtin
 void handleCd (std::vector<std::string> input) {
   std::string path = (input.at(1) == "~" ? std::getenv("HOME") : input.at(1));
   try {
-    std::filesystem::current_path(path); //setting path
-  } catch (std::filesystem::filesystem_error const& ex) {
+    fs::current_path(path); //setting path
+  } catch (fs::filesystem_error const& ex) {
     std::cout << "cd: "<< path << ": No such file or directory\n";
   }
 }
@@ -138,7 +163,7 @@ int main() {
   std::cerr << std::unitbuf;
 
   //user input
-  std::string user_input = "";
+  std::string user_input;
   while(true) {
     std::cout << "$ ";
     //user input
