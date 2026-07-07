@@ -59,7 +59,7 @@ std::string searchPath(std::string command) {
 
 void handleType(std::vector<std::string> input) {
   std::string command = input.at(1);
-  if (command == "echo" || command == "type" || command == "exit" || command == "pwd" || command == "cd") {
+  if (command == "echo" || command == "type" || command == "exit" || command == "pwd" || command == "cd" || command == "cat") {
     std::cout << command << " is a shell builtin\n";
   } else {
     std::string path = searchPath(command);
@@ -107,6 +107,10 @@ void handleCd (std::vector<std::string> input) {
   }
 }
 
+void handleCat (std::vector<std::string> input) {
+  
+}
+
 bool handleInput(std::string user_input) {
   std::vector<std::string> input = getVectorOfInput(user_input);
   if (input.at(0) == "echo") {
@@ -119,6 +123,8 @@ bool handleInput(std::string user_input) {
     handlePwd();
   } else if (input.at(0) == "cd") {
     handleCd(input);
+  } else if (input.at(0) == "cat") {
+    handleCat(input);
   } else if (!handleRunProgram(input)) {
     std::cout << input.at(0) << ": command not found\n";
   }
